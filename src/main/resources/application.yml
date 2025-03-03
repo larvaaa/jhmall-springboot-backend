@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: shopping
+
+  datasource:
+    url: jdbc:mysql://3.34.190.251:3306/shopping?useSSL=false&serverTimezone=UTC
+    username: user01
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # ???? ?????? ???? ???? (none, update, create, create-drop)
+    show-sql: true # SQL ?? ??
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    org.springframework:
+      security: TRACE
