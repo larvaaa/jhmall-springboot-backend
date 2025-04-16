@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop # ???? ?????? ???? ???? (none, update, create, create-drop)
+      ddl-auto: none # ???? ?????? ???? ???? (none, update, create, create-drop)
     show-sql: true # SQL ?? ??
     properties:
       hibernate:
@@ -20,3 +20,8 @@ logging:
   level:
     org.springframework:
       security: TRACE
+
+jwt:
+  secret-key: abcdefghijklmnopqrstuvwxyzabcdef
+  access-token-expiration-time: 1_800_000
+  refresh-token-expiration-time: 1_209_600_000

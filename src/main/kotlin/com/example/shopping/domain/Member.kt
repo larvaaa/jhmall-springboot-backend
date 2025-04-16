@@ -1,28 +1,25 @@
 package com.example.shopping.domain
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
+import jakarta.persistence.*
+import org.springframework.security.core.GrantedAuthority
 
 @Entity
-class Member (
+@Table(name = "members")
+class Member(
 
-    val username: String,
+    var loginId: String,
 
-    var phone: String,
+    var loginPw: String?,
 
-    var email: String,
+    var name: String? = null,
 
-    var address: String,
+    var mobileNumber: String? = null,
 
-    var zipcode: String,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0,
 
-
+    @OneToMany
+    var roles: MutableList<GrantedAuthority>? = null
 ) {
-
-    @Id @GeneratedValue
-    var id: Long = 0
-    
-
 
 }
