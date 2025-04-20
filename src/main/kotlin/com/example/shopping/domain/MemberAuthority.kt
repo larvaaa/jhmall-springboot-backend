@@ -3,7 +3,8 @@ package com.example.shopping.domain
 import jakarta.persistence.*
 
 @Entity
-class MemberAuth(
+@Table(name = "member_authorities")
+class MemberAuthority(
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_auth_id")
@@ -16,7 +17,5 @@ class MemberAuth(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auth_id")
     val authority: Authority
-) {
 
-
-}
+)

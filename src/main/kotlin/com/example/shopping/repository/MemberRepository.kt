@@ -3,7 +3,7 @@ package com.example.shopping.repository
 import com.example.shopping.domain.Member
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface MemberRepository: JpaRepository<Member, Long> {
+interface MemberRepository : JpaRepository<Member, Long> {
 
     fun findByLoginId(username: String): Member
 

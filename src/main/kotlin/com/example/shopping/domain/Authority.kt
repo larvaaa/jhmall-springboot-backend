@@ -1,6 +1,7 @@
 package com.example.shopping.domain
 
 import jakarta.persistence.*
+import org.springframework.security.core.GrantedAuthority
 
 @Entity
 @Table(name = "authorities")
@@ -10,8 +11,11 @@ class Authority(
     @Column(name = "auth_id")
     val id: Long = 0,
 
-    val role: Roles? = Roles.USER,
+    @Column(name = "auth_nm")
+    var role: String
 
-) {
+) : GrantedAuthority {
+
+    override fun getAuthority(): String = this.role
 
 }

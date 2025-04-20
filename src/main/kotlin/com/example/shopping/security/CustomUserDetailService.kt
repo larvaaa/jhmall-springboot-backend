@@ -1,6 +1,5 @@
 package com.example.shopping.security
 
-import com.example.shopping.domain.Member
 import com.example.shopping.repository.MemberRepository
 import org.springframework.security.core.CredentialsContainer
 import org.springframework.security.core.GrantedAuthority
@@ -21,24 +20,18 @@ class CustomUserDetailService(
             loginId = findMember.loginId,
             loginPw = findMember.loginPw!!,
             id = findMember.id,
-            roles = findMember.roles
+            roles = findMember.roles!!.map { it.authority }.toMutableList()
         )
 
         return customUserDetails
     }
 
     class CustomUserDetails(
-        loginId: String,
-        loginPw: String,
-        id: Long,
-        roles: MutableList<GrantedAuthority>?
+        val loginId: String,
+        var loginPw: String?,
+        val id: Long,
+        val roles: MutableList<GrantedAuthority>?
     ) : UserDetails,
-        Member(
-            loginId = loginId,
-            loginPw = loginPw,
-            id = id,
-            roles = roles
-        ),
         CredentialsContainer {
 
         override fun getAuthorities(): MutableList<GrantedAuthority>? = null

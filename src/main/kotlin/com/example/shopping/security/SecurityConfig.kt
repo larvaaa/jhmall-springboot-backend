@@ -1,8 +1,10 @@
 package com.example.shopping.security
 
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
@@ -24,7 +26,7 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 
-        val allowedPaths = arrayOf("/login", "/signUp", "/healthCheck")
+        val allowedPaths = arrayOf("/login", "/signUp", "/healthCheck", "/error")
 
         http {
 //            securityMatcher("/auth/**")
@@ -42,6 +44,15 @@ class SecurityConfig(
                 authorize(anyRequest, authenticated)
             }
 
+//            exceptionHandling {
+//                it.accessDeniedHandler { request, response, accessDeniedException ->
+//                    response.status = HttpServletResponse.SC_FORBIDDEN
+//                    response.contentType = MediaType.APPLICATION_JSON_VALUE
+//                    response.writer.write(
+//                        """{"error": "Access denied", "message": "${accessDeniedException.message}", "path": "${request.servletPath}"}"""
+//                    )
+//                }
+//            }
             // 커스텀 필터를 추가
             http.addFilterBefore(CustomTokenAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java)
         }

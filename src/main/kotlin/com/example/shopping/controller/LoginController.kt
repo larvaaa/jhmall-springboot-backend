@@ -81,7 +81,7 @@ class LoginController (
             mobileNumber = signUpRequest.mobileNumber
         )
 
-        memberService.register(newMember)
+        memberService.register(newMember, "USER")
 
         return ResponseEntity.ok(newMember)
 
@@ -89,7 +89,7 @@ class LoginController (
 
     @GetMapping("/test")
     fun test(@AuthenticationPrincipal memberId: Long): Long {
-        log.info("memberId = ${memberId}")
+        log.info("memberId = $memberId")
         return memberId
     }
 
