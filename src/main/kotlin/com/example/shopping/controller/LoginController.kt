@@ -47,10 +47,17 @@ class LoginController (
 
         val authenticationResponse: Authentication = authenticationManager.authenticate(authenticationRequest)
 //        SecurityContextHolder.getContext().authentication = authenticationResponse // 인증 상태 저장
-        val memberId: String = (authenticationResponse.principal as CustomUserDetailService.CustomUserDetails).id.toString()
-        val roles: MutableList<GrantedAuthority>? = (authenticationResponse.principal as CustomUserDetailService.CustomUserDetails).roles
 
-        log.info("MemberId = {}", memberId)
+        val findUserDetails: CustomUserDetailService.CustomUserDetails = authenticationResponse.principal as CustomUserDetailService.CustomUserDetails
+        val memberId: String = findUserDetails.id.toString()
+        val roles: MutableList<String>? = findUserDetails.roles
+
+//        for (role in roles!!) {
+//            log.info("=========>  ${role.authority}")
+//        }
+
+//        log.info("MemberId = {}", memberId)
+//        log.info("roles = {}", roles )
 
         val accessToken: String = jwtUtil.generateAccessToken(memberId, roles)
         log.info("accessToken = {}", accessToken)

@@ -7,6 +7,13 @@ spring:
     username: user01
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
+#    p6spy:
+#      enable-logging: true
+#      multiline: true
+#      logging: slf4j
+#      tracing:
+#        include-parameter-values: true
+
 
   jpa:
     hibernate:

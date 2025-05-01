@@ -1,16 +1,18 @@
 package com.example.shopping.security
 
+import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.Claims
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Component
-import java.util.Date
+import java.util.*
 import javax.crypto.spec.SecretKeySpec
 
 @Component
 class JwtUtil {
+
+    private val log = LoggerFactory.getLogger(this.javaClass)!!
 
     @Value("\${jwt.secret-key}")
     lateinit private var SECRET_KEY: String
@@ -21,7 +23,7 @@ class JwtUtil {
     @Value("\${jwt.refresh-token-expiration-time}")
     lateinit var REFRESH_TOKEN_EXPIRATION_TIME: String
 
-    fun generateAccessToken(memberId: String, roles: MutableList<GrantedAuthority>?): String {
+    fun generateAccessToken(memberId: String, roles: MutableList<String>?): String {
         val key = SecretKeySpec(SECRET_KEY.toByteArray(), SignatureAlgorithm.HS256.jcaName)
         val now = Date()
         val expirationDate = Date(now.time + ACCESS_TOKEN_EXPIRATION_TIME.toLong())

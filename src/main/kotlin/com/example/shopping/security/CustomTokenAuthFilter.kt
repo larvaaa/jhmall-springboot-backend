@@ -5,8 +5,10 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
@@ -46,9 +48,9 @@ class CustomTokenAuthFilter(
 //            println(headerNames.nextElement())
 //        }
 
-        val AuthorizationHeaderValue = request.getHeader("authorization")
+        val AuthorizationHeaderValue = request.getHeader("authorization") ?: throw NullPointerException("Authorization 헤더가 없습니다.")
 
-        if(AuthorizationHeaderValue == null) throw NullPointerException("Authorization 헤더가 없습니다.")
+//        if(AuthorizationHeaderValue == null) throw NullPointerException("Authorization 헤더가 없습니다.")
         if(!AuthorizationHeaderValue.startsWith("Bearer ")) throw IllegalStateException("Bearer 토큰 형식이 맞지 않습니다.")
 
         val accessToken: String = AuthorizationHeaderValue.substring(7)
@@ -56,7 +58,7 @@ class CustomTokenAuthFilter(
 
         val isAccessTokenValid: Boolean = jwtUtil.validateToken(accessToken)
 
-        if(!isAccessTokenValid) throw Exception("토큰 무결성 검증 실패")
+        if(!isAccessTokenValid) throw AccessDeniedException("토큰 무결성 검증 실패")
 
         val claim: Claims = jwtUtil.getClaimsFromToken(accessToken)
 
@@ -65,7 +67,8 @@ class CustomTokenAuthFilter(
         val roles: MutableList<GrantedAuthority> = claim.get("roles") as MutableList<GrantedAuthority>
 //        val roles = (claim["roles"] as? List<*>)?.map { SimpleGrantedAuthority(it.toString()) } ?: emptyList()
 
-        val authentication: Authentication = UsernamePasswordAuthenticationToken(memberId, null, roles)
+//        val authentication: Authentication = UsernamePasswordAuthenticationToken(memberId, null, roles)
+        val authentication: Authentication = UsernamePasswordAuthenticationToken(memberId, null)
 
         SecurityContextHolder.getContext().authentication = authentication
 

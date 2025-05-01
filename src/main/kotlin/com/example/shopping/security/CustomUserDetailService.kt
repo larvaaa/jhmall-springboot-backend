@@ -1,6 +1,8 @@
 package com.example.shopping.security
 
+import com.example.shopping.domain.Member
 import com.example.shopping.repository.MemberRepository
+import org.slf4j.LoggerFactory
 import org.springframework.security.core.CredentialsContainer
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -12,15 +14,20 @@ class CustomUserDetailService(
     val memberRepository: MemberRepository
 ) : UserDetailsService {
 
+    private val log = LoggerFactory.getLogger(this.javaClass)!!
+
     override fun loadUserByUsername(username: String): UserDetails {
 
-        val findMember = memberRepository.findByLoginId(username)
+        val findMember: Member = memberRepository.findByLoginId(username)
+
+        val roles: MutableList<String>? = findMember.roles?.map { it.authority.role }?.toMutableList()
+
 
         val customUserDetails = CustomUserDetails(
             loginId = findMember.loginId,
             loginPw = findMember.loginPw!!,
             id = findMember.id,
-            roles = findMember.roles!!.map { it.authority }.toMutableList()
+            roles = roles
         )
 
         return customUserDetails
@@ -30,7 +37,7 @@ class CustomUserDetailService(
         val loginId: String,
         var loginPw: String?,
         val id: Long,
-        val roles: MutableList<GrantedAuthority>?
+        val roles: MutableList<String>?
     ) : UserDetails,
         CredentialsContainer {
 
