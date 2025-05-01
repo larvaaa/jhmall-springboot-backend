@@ -22,7 +22,6 @@ class CustomUserDetailService(
 
         val roles: MutableList<String>? = findMember.roles?.map { it.authority.role }?.toMutableList()
 
-
         val customUserDetails = CustomUserDetails(
             loginId = findMember.loginId,
             loginPw = findMember.loginPw!!,
