@@ -23,7 +23,6 @@ class CustomTokenAuthFilter(
     private val skipPaths = listOf(
         AntPathRequestMatcher("/login"),
         AntPathRequestMatcher("/signUp"),
-        AntPathRequestMatcher("/healthCheck"),
         AntPathRequestMatcher("/error")
     )
 

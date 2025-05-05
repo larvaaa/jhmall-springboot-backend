@@ -12,10 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -29,11 +26,6 @@ class LoginController (
 ) {
 
     private val log = LoggerFactory.getLogger(this.javaClass)!!
-
-    @GetMapping("/healthCheck")
-    fun healthCheck(): String {
-        return "ok"
-    }
 
     @PostMapping("/login")
     fun login(
@@ -51,13 +43,6 @@ class LoginController (
         val findUserDetails: CustomUserDetailService.CustomUserDetails = authenticationResponse.principal as CustomUserDetailService.CustomUserDetails
         val memberId: String = findUserDetails.id.toString()
         val roles: MutableList<String>? = findUserDetails.roles
-
-//        for (role in roles!!) {
-//            log.info("=========>  ${role.authority}")
-//        }
-
-//        log.info("MemberId = {}", memberId)
-//        log.info("roles = {}", roles )
 
         val accessToken: String = jwtUtil.generateAccessToken(memberId, roles)
         log.info("accessToken = {}", accessToken)
@@ -92,12 +77,6 @@ class LoginController (
 
         return ResponseEntity.ok(newMember)
 
-    }
-
-    @GetMapping("/test")
-    fun test(@AuthenticationPrincipal memberId: Long): Long {
-        log.info("memberId = $memberId")
-        return memberId
     }
 
     data class SignUpRequest(
