@@ -7,6 +7,7 @@ import org.springframework.security.core.CredentialsContainer
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,7 +19,7 @@ class CustomUserDetailService(
 
     override fun loadUserByUsername(username: String): UserDetails {
 
-        val findMember: Member = memberRepository.findByLoginId(username)
+        val findMember: Member = memberRepository.findByLoginId(username) ?: throw UsernameNotFoundException("부적절한 아이디/패스워드")
 
         val roles: MutableList<String>? = findMember.roles?.map { it.authority.role }?.toMutableList()
 

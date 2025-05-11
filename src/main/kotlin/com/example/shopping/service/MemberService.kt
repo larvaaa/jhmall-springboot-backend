@@ -17,7 +17,7 @@ class MemberService(
 
     private val log = LoggerFactory.getLogger(this.javaClass)!!
 
-    fun findByLoginId(username: String): Member = memberRepository.findByLoginId(username)
+    fun findByLoginId(username: String): Member? = memberRepository.findByLoginId(username)
 
     fun register(member: Member, role: String): Member {
 
@@ -28,6 +28,10 @@ class MemberService(
         memberAuthorityRepository.save(memberAuthority)
 
         return memberRepository.save(member)
+    }
+
+    fun duplicateCheck(loginId: String): String {
+        return if(findByLoginId(loginId) == null) "Y" else "N"
     }
 
 }

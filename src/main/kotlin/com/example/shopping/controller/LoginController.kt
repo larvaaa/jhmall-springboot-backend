@@ -3,24 +3,26 @@ package com.example.shopping.controller
 import com.example.shopping.domain.Member
 import com.example.shopping.security.CustomUserDetailService
 import com.example.shopping.security.JwtUtil
+import com.example.shopping.service.AuthorityService
 import com.example.shopping.service.MemberService
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class LoginController (
     val authenticationManager: AuthenticationManager,
     val memberService: MemberService,
+    val authorityService: AuthorityService,
     val passwordEncoder: PasswordEncoder,
     val jwtUtil: JwtUtil
 ) {
@@ -33,34 +35,45 @@ class LoginController (
         response: HttpServletResponse
     ): ResponseEntity<LoginResponse> {
 
-        log.info("start login controller")
+        try {
 
-        val authenticationRequest: UsernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.loginId, loginRequest.loginPw)
+            val authenticationRequest: UsernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.loginId, loginRequest.loginPw)
 
-        val authenticationResponse: Authentication = authenticationManager.authenticate(authenticationRequest)
-//        SecurityContextHolder.getContext().authentication = authenticationResponse // 인증 상태 저장
+            val authenticationResponse: Authentication = authenticationManager.authenticate(authenticationRequest)
+    //        SecurityContextHolder.getContext().authentication = authenticationResponse // 인증 상태 저장
 
-        val findUserDetails: CustomUserDetailService.CustomUserDetails = authenticationResponse.principal as CustomUserDetailService.CustomUserDetails
-        val memberId: String = findUserDetails.id.toString()
-        val roles: MutableList<String>? = findUserDetails.roles
+            val findUserDetails: CustomUserDetailService.CustomUserDetails = authenticationResponse.principal as CustomUserDetailService.CustomUserDetails
+            val memberId: String = findUserDetails.id.toString()
+            val roles: MutableList<String>? = findUserDetails.roles
 
-        val accessToken: String = jwtUtil.generateAccessToken(memberId, roles)
-        log.info("accessToken = {}", accessToken)
+            val accessToken: String = jwtUtil.generateAccessToken(memberId, roles)
+            log.info("accessToken = {}", accessToken)
+            val accessCookie: ResponseCookie = ResponseCookie.from("refreshToken", accessToken)
+                .maxAge(14 * 24 * 60 * 60)
+                .domain("localhost")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .build()
 
-        val refreshToken: String = jwtUtil.generateRefreshToken(memberId)
-//        val encodeToken: String = Base64.getUrlEncoder().encodeToString(refreshToken.toByteArray())
+            val refreshToken: String = jwtUtil.generateRefreshToken(memberId)
+    //        val encodeToken: String = Base64.getUrlEncoder().encodeToString(refreshToken.toByteArray())
 
-        val cookie: ResponseCookie = ResponseCookie.from("refreshToken", refreshToken)
-            .maxAge(14 * 24 * 60 * 60)
-            .domain("localhost")
-            .httpOnly(true)
-            .secure(true)
-            .sameSite("None")
-            .build()
+            val refreshCookie: ResponseCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .maxAge(14 * 24 * 60 * 60)
+                .domain("localhost")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .build()
 
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString())
+            response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString())
+            response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString())
 
-        return ResponseEntity.ok(LoginResponse(accessToken, "Bearer"))
+            return ResponseEntity.ok(LoginResponse(accessToken, "Bearer"))
+        } catch (e: BadCredentialsException) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        }
     }
 
     @PostMapping("/signUp")
@@ -76,6 +89,20 @@ class LoginController (
         memberService.register(newMember, "USER")
 
         return ResponseEntity.ok(newMember)
+
+    }
+
+    @GetMapping("/duplicateCheck")
+    fun duplicateCheck(@RequestParam loginId: String): ResponseEntity<String> {
+        val checkResult = memberService.duplicateCheck(loginId)
+        return ResponseEntity.ok(checkResult)
+    }
+
+    @GetMapping("/roles")
+    fun findRoles(): ResponseEntity<List<String>> {
+
+        val roles: List<String> = authorityService.findRoles()
+        return ResponseEntity.ok(roles)
 
     }
 
