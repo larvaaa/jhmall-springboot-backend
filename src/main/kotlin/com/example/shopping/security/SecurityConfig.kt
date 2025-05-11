@@ -26,7 +26,7 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 
-        val allowedPaths = arrayOf("/login", "/signUp", "/error")
+        val allowedPaths = arrayOf("/login", "/signUp", "/error", "/duplicateCheck")
 
         http {
 //            securityMatcher("/auth/**")
