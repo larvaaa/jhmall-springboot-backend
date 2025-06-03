@@ -2,6 +2,7 @@ package com.example.shopping.service
 
 import com.example.shopping.domain.Member
 import com.example.shopping.domain.MemberAuthority
+import com.example.shopping.dto.MemberDto
 import com.example.shopping.repository.AuthorityRepository
 import com.example.shopping.repository.MemberAuthorityRepository
 import com.example.shopping.repository.MemberRepository
@@ -28,6 +29,18 @@ class MemberService(
         memberAuthorityRepository.save(memberAuthority)
 
         return memberRepository.save(member)
+    }
+
+    fun findById(id: Long): MemberDto {
+        val findMember: Member = memberRepository.findById(id).orElseThrow()
+        val memberDto: MemberDto = MemberDto(
+            name = findMember.name!!,
+            mobileNumber = findMember.mobileNumber!!,
+            loginId = null,
+            loginPw = null,
+            id = findMember.id
+        )
+        return memberDto
     }
 
     fun duplicateCheck(loginId: String): String {

@@ -27,7 +27,8 @@ class CustomUserDetailService(
             loginId = findMember.loginId,
             loginPw = findMember.loginPw!!,
             id = findMember.id,
-            roles = roles
+            roles = roles,
+            name = findMember.name!!
         )
 
         return customUserDetails
@@ -36,6 +37,7 @@ class CustomUserDetailService(
     class CustomUserDetails(
         val loginId: String,
         var loginPw: String?,
+        var name: String,
         val id: Long,
         val roles: MutableList<String>?
     ) : UserDetails,

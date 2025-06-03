@@ -8,4 +8,5 @@ interface MemberRepository : JpaRepository<Member, Long>, MemberRepositoryCustom
     fun findByLoginId(username: String): Member?
 
     fun save(member: Member): Member
+
 }

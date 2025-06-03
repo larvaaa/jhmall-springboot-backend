@@ -4,11 +4,11 @@ import io.jsonwebtoken.Claims
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.apache.tomcat.util.http.parser.Cookie
 import org.slf4j.LoggerFactory
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
@@ -22,7 +22,6 @@ class CustomTokenAuthFilter(
 
     private val skipPaths = listOf(
         AntPathRequestMatcher("/login"),
-        AntPathRequestMatcher("/signUp"),
         AntPathRequestMatcher("/error"),
         AntPathRequestMatcher("/duplicateCheck"),
     )
@@ -44,16 +43,22 @@ class CustomTokenAuthFilter(
         }
 
 //        val headerNames = request.headerNames
+//        println(" 헤더 목록 ===========>")
 //        while (headerNames.hasMoreElements()) {
 //            println(headerNames.nextElement())
 //        }
 
-        val AuthorizationHeaderValue = request.getHeader("authorization") ?: throw NullPointerException("Authorization 헤더가 없습니다.")
+//        val cookies = request.cookies
+//        println(" 쿠키 목록 ===========>")
+//        for ((index, value) in cookies.withIndex()) {
+//            println("cookie[${index}] = $value")
+//        }
 
-//        if(AuthorizationHeaderValue == null) throw NullPointerException("Authorization 헤더가 없습니다.")
-        if(!AuthorizationHeaderValue.startsWith("Bearer ")) throw IllegalStateException("Bearer 토큰 형식이 맞지 않습니다.")
+        val authorizationHeaderValue = request.getHeader("authorization") ?: throw NullPointerException("Authorization 헤더가 없습니다.")
 
-        val accessToken: String = AuthorizationHeaderValue.substring(7)
+        if(!authorizationHeaderValue.startsWith("Bearer ")) throw IllegalStateException("Bearer 토큰 형식이 맞지 않습니다.")
+
+        val accessToken: String = authorizationHeaderValue.substring(7)
         log.info("accessToken = $accessToken")
 
         val isAccessTokenValid: Boolean = jwtUtil.validateToken(accessToken)
@@ -67,8 +72,7 @@ class CustomTokenAuthFilter(
         val roles: MutableList<GrantedAuthority> = claim.get("roles") as MutableList<GrantedAuthority>
 //        val roles = (claim["roles"] as? List<*>)?.map { SimpleGrantedAuthority(it.toString()) } ?: emptyList()
 
-//        val authentication: Authentication = UsernamePasswordAuthenticationToken(memberId, null, roles)
-        val authentication: Authentication = UsernamePasswordAuthenticationToken(memberId, null)
+        val authentication: Authentication = UsernamePasswordAuthenticationToken(memberId, null, roles)
 
         SecurityContextHolder.getContext().authentication = authentication
 

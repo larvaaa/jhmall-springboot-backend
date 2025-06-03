@@ -1,8 +1,7 @@
 package com.example.shopping.security
 
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.*
+import io.jsonwebtoken.security.SignatureException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -58,8 +57,24 @@ class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
             true // 토큰이 유효함
+        } catch (e: SignatureException) {
+            log.error("Invalid JWT signature: ${e.message}")
+            false
+        } catch (e: MalformedJwtException) {
+            log.error("Invalid JWT token format: ${e.message}")
+            false
+        } catch (e: ExpiredJwtException) {
+            log.error("JWT token is expired: ${e.message}")
+            false
+        } catch (e: UnsupportedJwtException) {
+            log.error("Unsupported JWT token: ${e.message}")
+            false
+        } catch (e: IllegalArgumentException) {
+            log.error("JWT claims string is empty or invalid: ${e.message}")
+            false
         } catch (e: Exception) {
-            false // 토큰이 유효하지 않음
+            log.error("Unexpected error during JWT validation: ${e.message}")
+            false
         }
     }
 
